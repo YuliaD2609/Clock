@@ -32,6 +32,11 @@ public class CountdownWidgetProvider extends AppWidgetProvider {
             views.setTextViewText(R.id.widget_event_name, event.getName());
 
             long diff = event.getTimestamp() - System.currentTimeMillis();
+
+            // Apply Theme Color
+            int color = com.example.clock.utils.ThemeHelper.getAccentColor(context);
+            views.setTextColor(R.id.widget_time_main, color);
+
             if (diff < 0) {
                 views.setTextViewText(R.id.widget_time_main, "Done");
             } else {
