@@ -19,6 +19,7 @@ public class DetailActivity extends AppCompatActivity {
     private TextView nameText;
     private TextView infoText;
     private TextView daysText, hoursText, minutesText, secondsText;
+    private android.widget.ImageView pinWidgetBtn;
 
     private Event event;
     private Handler handler;
@@ -27,6 +28,7 @@ public class DetailActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_detail);
 
         nameText = findViewById(R.id.detail_event_name);
@@ -44,6 +46,49 @@ public class DetailActivity extends AppCompatActivity {
             setupUI();
             startCountdown();
         }
+
+        pinWidgetBtn = findViewById(R.id.btn_pin_widget);
+        pinWidgetBtn.setOnClickListener(new android.view.View.OnClickListener() {
+            @Override
+            public void onClick(android.view.View v) {
+                requestPinWidget();
+            }
+        });
+    }
+
+    private void requestPinWidget() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            android.appwidget.AppWidgetManager appWidgetManager = getSystemService(
+                    android.appwidget.AppWidgetManager.class);
+            android.content.ComponentName myProvider = new android.content.ComponentName(this,
+                    com.example.clock.widget.CountdownWidgetProvider.class);
+
+            if (appWidgetManager.isRequestPinAppWidgetSupported()) {
+                saveEventForWidgets(event);
+                appWidgetManager.requestPinAppWidget(myProvider, null, null);
+                android.widget.Toast.makeText(DetailActivity.this, "Pinning widget for: " + event.getName(),
+                        android.widget.Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            android.widget.Toast.makeText(this, "Widget pinning not supported on this device version",
+                    android.widget.Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void saveEventForWidgets(Event event) {
+        android.content.SharedPreferences prefs = getSharedPreferences("widget_prefs", 0);
+        com.google.gson.Gson gson = new com.google.gson.Gson();
+        String json = gson.toJson(event);
+        prefs.edit().putString("global_widget_event", json).apply();
+
+        android.content.Intent intent = new android.content.Intent(this,
+                com.example.clock.widget.CountdownWidgetProvider.class);
+        intent.setAction(android.appwidget.AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+        int[] ids = android.appwidget.AppWidgetManager.getInstance(getApplication())
+                .getAppWidgetIds(new android.content.ComponentName(getApplication(),
+                        com.example.clock.widget.CountdownWidgetProvider.class));
+        intent.putExtra(android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+        sendBroadcast(intent);
     }
 
     private void setupUI() {

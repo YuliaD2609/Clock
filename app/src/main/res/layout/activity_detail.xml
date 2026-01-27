@@ -20,6 +20,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="32dp"/>
 
+    <ImageView
+        android:id="@+id/btn_pin_widget"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@android:drawable/ic_input_add"
+        app:tint="@color/accent_color"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:contentDescription="Pin Widget"
+        android:layout_margin="16dp"/>
+
     <TextView
         android:id="@+id/detail_event_info"
         android:layout_width="wrap_content"
