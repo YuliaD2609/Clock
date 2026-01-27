@@ -77,26 +77,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showColorPicker() {
-        final java.util.List<Integer> colors = com.example.clock.utils.ThemeHelper.getPresetColors();
-        String[] colorNames = new String[colors.size()];
-        for (int i = 0; i < colors.size(); i++) {
-            if (colors.get(i) == com.example.clock.utils.ThemeHelper.DEFAULT_COLOR)
-                colorNames[i] = "Default (Purple)";
-            else
-                colorNames[i] = String.format("#%06X", (0xFFFFFF & colors.get(i)));
-        }
+        android.view.View dialogView = getLayoutInflater().inflate(R.layout.dialog_color_picker, null);
+        com.example.clock.utils.ColorWheelView colorWheel = dialogView.findViewById(R.id.color_wheel);
 
-        new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+        final android.app.AlertDialog dialog = new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
                 .setTitle("Choose Accent Color")
-                .setItems(colorNames, new android.content.DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(android.content.DialogInterface dialog, int which) {
-                        com.example.clock.utils.ThemeHelper.saveAccentColor(MainActivity.this, colors.get(which));
-                        applyTheme();
-                        if (adapter != null)
-                            adapter.notifyDataSetChanged(); // triggers re-bind with new color
-                    }
-                })
+                .setView(dialogView)
                 .setNeutralButton("Reset Default", new android.content.DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(android.content.DialogInterface dialog, int which) {
@@ -106,7 +92,20 @@ public class MainActivity extends AppCompatActivity {
                             adapter.notifyDataSetChanged();
                     }
                 })
-                .show();
+                .setNegativeButton("Cancel", null)
+                .create();
+
+        colorWheel.setOnColorSelectedListener(new com.example.clock.utils.ColorWheelView.OnColorSelectedListener() {
+            @Override
+            public void onColorSelected(int color) {
+                com.example.clock.utils.ThemeHelper.saveAccentColor(MainActivity.this, color);
+                applyTheme();
+                if (adapter != null)
+                    adapter.notifyDataSetChanged();
+            }
+        });
+
+        dialog.show();
     }
 
     private void applyTheme() {

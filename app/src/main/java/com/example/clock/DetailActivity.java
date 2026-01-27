@@ -48,6 +48,22 @@ public class DetailActivity extends AppCompatActivity {
             applyTheme();
         }
 
+        android.widget.ImageView homeBtn = findViewById(R.id.btn_home);
+        if (homeBtn != null) {
+            homeBtn.setOnClickListener(new android.view.View.OnClickListener() {
+                @Override
+                public void onClick(android.view.View v) {
+                    // Navigate to Home (MainActivity)
+                    android.content.Intent intent = new android.content.Intent(DetailActivity.this, MainActivity.class);
+                    // Clear stack so we don't pile up activities
+                    intent.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
+                            | android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                    finish();
+                }
+            });
+        }
+
         pinWidgetBtn = findViewById(R.id.btn_pin_widget);
         pinWidgetBtn.setOnClickListener(new android.view.View.OnClickListener() {
             @Override
