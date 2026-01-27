@@ -112,7 +112,13 @@ public class MainActivity extends AppCompatActivity {
     private void applyTheme() {
         int color = com.example.clock.utils.ThemeHelper.getAccentColor(this);
         fab.setBackgroundTintList(android.content.res.ColorStateList.valueOf(color));
-        // Also update adapter color? Adapter needs to fetch color in onBindViewHolder
+
+        android.widget.ImageView paletteBtn = findViewById(R.id.btn_palette);
+        if (paletteBtn != null)
+            paletteBtn.setColorFilter(color); // User wanted everything purple changed.
+
+        if (historyBtn != null)
+            historyBtn.setColorFilter(color);
     }
 
     @Override
