@@ -32,6 +32,22 @@ public class Event implements Serializable, Comparable<Event> {
         return timestamp;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setPlace(String place) {
+        this.place = place;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
     @Override
     public int compareTo(Event o) {
         // Sort by proximity in time (ascending timestamp)

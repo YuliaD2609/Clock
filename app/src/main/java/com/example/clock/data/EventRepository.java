@@ -38,7 +38,17 @@ public class EventRepository {
 
     public void addEvent(Event event) {
         List<Event> events = getEvents();
-        events.add(event);
+        boolean found = false;
+        for (int i = 0; i < events.size(); i++) {
+            if (events.get(i).getId().equals(event.getId())) {
+                events.set(i, event);
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            events.add(event);
+        }
         saveEvents(events);
     }
 

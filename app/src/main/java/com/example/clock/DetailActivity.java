@@ -54,6 +54,40 @@ public class DetailActivity extends AppCompatActivity {
                 requestPinWidget();
             }
         });
+
+        android.widget.ImageView editBtn = findViewById(R.id.btn_edit_event);
+        editBtn.setOnClickListener(new android.view.View.OnClickListener() {
+            @Override
+            public void onClick(android.view.View v) {
+                android.content.Intent intent = new android.content.Intent(DetailActivity.this, AddEventActivity.class);
+                intent.putExtra("event", event);
+                startActivity(intent);
+                finish(); // Finish detail so when we come back or save, we reload ??
+                // Actually, if we edit, we should probably finish this activity or reload it.
+                // Simplest: Finish this, open AddEvent (Edit mode). AddEvent finishes ->
+                // returns to Main.
+            }
+        });
+
+        android.widget.ImageView deleteBtn = findViewById(R.id.btn_delete_event);
+        deleteBtn.setOnClickListener(new android.view.View.OnClickListener() {
+            @Override
+            public void onClick(android.view.View v) {
+                new com.google.android.material.dialog.MaterialAlertDialogBuilder(DetailActivity.this)
+                        .setTitle("Delete Event?")
+                        .setMessage("Are you sure you want to delete this event?")
+                        .setPositiveButton("Delete", new android.content.DialogInterface.OnClickListener() {
+                            public void onClick(android.content.DialogInterface dialog, int which) {
+                                com.example.clock.data.EventRepository repo = new com.example.clock.data.EventRepository(
+                                        DetailActivity.this);
+                                repo.deleteEvent(event);
+                                finish();
+                            }
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
+            }
+        });
     }
 
     private void requestPinWidget() {

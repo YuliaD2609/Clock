@@ -22,6 +22,8 @@ public class MainActivity extends AppCompatActivity {
     private EventRepository repository;
     private FloatingActionButton fab;
 
+    private android.widget.ImageView historyBtn;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,9 +33,15 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recycler_view_events);
         fab = findViewById(R.id.fab_add_event);
+        historyBtn = findViewById(R.id.btn_history);
 
         adapter = new EventAdapter();
-        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        // User requested: "events should start from top left" -> Grid with 2 columns
+        // seems appropriate or just vertical list.
+        // Request also mentioned "horizontal tabs" previously but now wants "start from
+        // top left".
+        // Let's use GridLayoutManager with 2 columns as planned.
+        recyclerView.setLayoutManager(new androidx.recyclerview.widget.GridLayoutManager(this, 2));
         recyclerView.setAdapter(adapter);
 
         adapter.setOnEventClickListener(new EventAdapter.OnEventClickListener() {
@@ -51,6 +59,13 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, AddEventActivity.class));
             }
         });
+
+        historyBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, HistoryActivity.class));
+            }
+        });
     }
 
     @Override
@@ -60,7 +75,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadEvents() {
-        List<Event> events = repository.getEvents();
-        adapter.setEvents(events);
+        List<Event> allEvents = repository.getEvents();
+        List<Event> futureEvents = new java.util.ArrayList<>();
+        long now = System.currentTimeMillis();
+
+        for (Event e : allEvents) {
+            if (e.getTimestamp() > now) {
+                futureEvents.add(e);
+            }
+        }
+        adapter.setEvents(futureEvents);
     }
 }

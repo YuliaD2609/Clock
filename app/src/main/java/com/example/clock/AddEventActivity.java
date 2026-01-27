@@ -31,6 +31,8 @@ public class AddEventActivity extends AppCompatActivity {
     private SimpleDateFormat dateFormat;
     private SimpleDateFormat timeFormat;
 
+    private Event eventToEdit;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,6 +47,14 @@ public class AddEventActivity extends AppCompatActivity {
         selectedCalendar = Calendar.getInstance();
         dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
         timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+
+        if (getIntent().hasExtra("event")) {
+            eventToEdit = (Event) getIntent().getSerializableExtra("event");
+            nameInput.setText(eventToEdit.getName());
+            placeInput.setText(eventToEdit.getPlace());
+            selectedCalendar.setTimeInMillis(eventToEdit.getTimestamp());
+            saveButton.setText("Update");
+        }
 
         updateDateButton();
         updateTimeButton();
@@ -114,9 +124,17 @@ public class AddEventActivity extends AppCompatActivity {
             return;
         }
 
-        Event event = new Event(name, place, selectedCalendar.getTimeInMillis());
         EventRepository repository = new EventRepository(this);
-        repository.addEvent(event);
+
+        if (eventToEdit != null) {
+            eventToEdit.setName(name);
+            eventToEdit.setPlace(place);
+            eventToEdit.setTimestamp(selectedCalendar.getTimeInMillis());
+            repository.addEvent(eventToEdit); // This will update because ID matches
+        } else {
+            Event event = new Event(name, place, selectedCalendar.getTimeInMillis());
+            repository.addEvent(event);
+        }
 
         finish();
     }
