@@ -188,27 +188,29 @@ public class DetailActivity extends AppCompatActivity {
     private void applyTheme() {
         int color = com.example.clock.utils.ThemeHelper.getAccentColor(this);
         if (pinWidgetBtn != null)
-            pinWidgetBtn.setColorFilter(color);
+            pinWidgetBtn.setColorFilter(color, android.graphics.PorterDuff.Mode.SRC_IN);
 
         android.widget.ImageView editBtn = findViewById(R.id.btn_edit_event);
         if (editBtn != null)
-            editBtn.setColorFilter(color);
+            editBtn.setColorFilter(color, android.graphics.PorterDuff.Mode.SRC_IN);
 
         android.widget.ImageView deleteBtn = findViewById(R.id.btn_delete_event);
         if (deleteBtn != null)
-            deleteBtn.setColorFilter(color);
+            deleteBtn.setColorFilter(color, android.graphics.PorterDuff.Mode.SRC_IN);
 
-        // Maybe tint the time text? Or keep it white? User said "purple should be
-        // changed".
-        // Let's tint the specific countdown units labels if we had them, or just the
-        // main numbers?
-        // White numbers are readable. Maybe the Labels "Names"?
-        // Or sticky with White text and just Colored buttons/Icons is "Minimal" and
-        // safe.
-        // User said "change the colour of the app".
-        // Let's tint the Name or Time slightly? No, readability.
-        // Let's tint the "infoText" or Separators?
-        // Let's tint the "Pin Widget" button which we did.
+        android.widget.ImageView homeBtn = findViewById(R.id.btn_home);
+        if (homeBtn != null)
+            homeBtn.setColorFilter(color, android.graphics.PorterDuff.Mode.SRC_IN);
+
+        // Tint the countdown numbers
+        if (daysText != null)
+            daysText.setTextColor(color);
+        if (hoursText != null)
+            hoursText.setTextColor(color);
+        if (minutesText != null)
+            minutesText.setTextColor(color);
+        if (secondsText != null)
+            secondsText.setTextColor(color);
     }
 
     @Override
