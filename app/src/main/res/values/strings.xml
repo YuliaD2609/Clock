@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Clock</string>
+    <string name="title_activity_main">Clock</string>
+    <string name="add_event">Add Event</string>
+    <string name="event_name_hint">Event Name</string>
+    <string name="event_place_hint">Place</string>
+    <string name="save_button">Save</string>
+    <string name="pick_date">Pick Date</string>
+    <string name="pick_time">Pick Time</string>
+</resources>
