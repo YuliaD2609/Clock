@@ -34,7 +34,7 @@
             android:text="00d 00h"
             android:textColor="@color/accent_color"
             android:textStyle="bold"
-            android:textSize="30sp"/>
+            android:textSize="40sp"/>
             
     </LinearLayout>
 
