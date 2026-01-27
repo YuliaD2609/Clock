@@ -59,6 +59,8 @@ public class AddEventActivity extends AppCompatActivity {
         updateDateButton();
         updateTimeButton();
 
+        applyTheme();
+
         dateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -79,6 +81,15 @@ public class AddEventActivity extends AppCompatActivity {
                 saveEvent();
             }
         });
+    }
+
+    private void applyTheme() {
+        int color = com.example.clock.utils.ThemeHelper.getAccentColor(this);
+        saveButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(color));
+        dateButton.setTextColor(color);
+        timeButton.setTextColor(color);
+        // Also could tint the input underlines or cursor if possible, but buttons are
+        // main thing.
     }
 
     private void showDatePicker() {
