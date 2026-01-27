@@ -80,7 +80,8 @@ public class MainActivity extends AppCompatActivity {
         android.view.View dialogView = getLayoutInflater().inflate(R.layout.dialog_color_picker, null);
         com.example.clock.utils.ColorWheelView colorWheel = dialogView.findViewById(R.id.color_wheel);
 
-        final android.app.AlertDialog dialog = new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+        final androidx.appcompat.app.AlertDialog dialog = new com.google.android.material.dialog.MaterialAlertDialogBuilder(
+                this)
                 .setTitle("Choose Accent Color")
                 .setView(dialogView)
                 .setNeutralButton("Reset Default", new android.content.DialogInterface.OnClickListener() {
