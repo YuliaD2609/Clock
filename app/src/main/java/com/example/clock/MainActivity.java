@@ -112,7 +112,15 @@ public class MainActivity extends AppCompatActivity {
     private void applyTheme() {
         int color = com.example.clock.utils.ThemeHelper.getAccentColor(this);
         fab.setBackgroundTintList(android.content.res.ColorStateList.valueOf(color));
-        // Also update adapter color? Adapter needs to fetch color in onBindViewHolder
+        fab.setColorFilter(android.graphics.Color.WHITE); // Ensure the + icon is white
+
+        android.widget.ImageView paletteBtn = findViewById(R.id.btn_palette);
+        if (paletteBtn != null)
+            paletteBtn.setColorFilter(color, android.graphics.PorterDuff.Mode.SRC_IN);
+
+        android.widget.ImageView historyBtn = findViewById(R.id.btn_history);
+        if (historyBtn != null)
+            historyBtn.setColorFilter(color, android.graphics.PorterDuff.Mode.SRC_IN);
     }
 
     @Override
