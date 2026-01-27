@@ -61,18 +61,16 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
             super(itemView);
             nameText = itemView.findViewById(R.id.text_event_name);
             countdownText = itemView.findViewById(R.id.text_event_countdown);
-            // Assuming item_event.xml has an ImageView for the clock?
-            // We need to check item_event.xml content first or assume ID.
-            // Earlier write_to_file for item_event didn't explicitly show clock icon ID but
-            // said "with a clock icon".
-            // Let's assume ID is `image_clock` or view file if unsure.
-            // I'll assume I need to find the ID.
-            // Wait, I should view item_event.xml to be sure.
-            // Actually, I'll view it in next turn if I fail, but let's check content.
-            // I will use `view_file` on `item_event.xml` first to be safe.
+            clockIcon = itemView.findViewById(R.id.image_clock);
         }
 
         public void bind(final Event event, final OnEventClickListener listener) {
+            // Apply Theme
+            int color = com.example.clock.utils.ThemeHelper.getAccentColor(itemView.getContext());
+            if (clockIcon != null) {
+                clockIcon.setColorFilter(color, android.graphics.PorterDuff.Mode.SRC_IN);
+            }
+
             nameText.setText(event.getName());
 
             long diff = event.getTimestamp() - System.currentTimeMillis();
