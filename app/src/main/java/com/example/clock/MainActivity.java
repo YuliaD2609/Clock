@@ -112,17 +112,7 @@ public class MainActivity extends AppCompatActivity {
     private void applyTheme() {
         int color = com.example.clock.utils.ThemeHelper.getAccentColor(this);
         fab.setBackgroundTintList(android.content.res.ColorStateList.valueOf(color));
-        // Ensure the plus icon inside is visible (tint it white or black? usually
-        // standard is fine)
-        // If user wants EVERYTHING colored, maybe they want the icon colored too?
-        // But FAB is already colored background.
-
-        android.widget.ImageView paletteBtn = findViewById(R.id.btn_palette);
-        if (paletteBtn != null)
-            paletteBtn.setColorFilter(color, android.graphics.PorterDuff.Mode.SRC_IN);
-
-        if (historyBtn != null)
-            historyBtn.setColorFilter(color, android.graphics.PorterDuff.Mode.SRC_IN);
+        // Also update adapter color? Adapter needs to fetch color in onBindViewHolder
     }
 
     @Override
