@@ -202,6 +202,10 @@ public class DetailActivity extends AppCompatActivity {
         if (homeBtn != null)
             homeBtn.setColorFilter(color, android.graphics.PorterDuff.Mode.SRC_IN);
 
+        android.widget.ImageView pinwdg = findViewById(R.id.btn_pin_widget);
+        if (pinwdg != null)
+            pinwdg.setColorFilter(color, android.graphics.PorterDuff.Mode.SRC_IN);
+
         // Tint the countdown numbers
         if (daysText != null)
             daysText.setTextColor(color);
