@@ -108,9 +108,9 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     // Views to toggle visibility
-    private android.view.View layoutDays, layoutHours;
-    private android.view.View sepDayHour, sepHourMin;
-    private boolean showTotalMinutes = false;
+    private android.view.View layoutDays, layoutHours, layoutSeconds;
+    private android.view.View sepDayHour, sepHourMin, sepMinSec;
+    private boolean showTotalHoursMode = false;
 
     private void requestPinWidget() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -195,33 +195,47 @@ public class DetailActivity extends AppCompatActivity {
             secondsText.setText("00");
             // Optional: Show "Event Started" or similar
         } else {
-            if (showTotalMinutes) {
-                // Show Total Minutes mode
+            if (showTotalHoursMode) {
+                // Mode: Total Hours : Minutes
                 if (layoutDays != null)
                     layoutDays.setVisibility(android.view.View.GONE);
-                if (layoutHours != null)
-                    layoutHours.setVisibility(android.view.View.GONE);
                 if (sepDayHour != null)
                     sepDayHour.setVisibility(android.view.View.GONE);
-                if (sepHourMin != null)
-                    sepHourMin.setVisibility(android.view.View.GONE);
 
-                long totalMinutes = TimeUnit.MILLISECONDS.toMinutes(diff);
-                long seconds = TimeUnit.MILLISECONDS.toSeconds(diff) % 60;
-
-                minutesText.setText(String.format(Locale.getDefault(), "%02d", totalMinutes));
-                secondsText.setText(String.format(Locale.getDefault(), "%02d", seconds));
-
-            } else {
-                // Show Standard mode
-                if (layoutDays != null)
-                    layoutDays.setVisibility(android.view.View.VISIBLE);
+                // Show Hours and Minutes (Hours displays Total)
                 if (layoutHours != null)
                     layoutHours.setVisibility(android.view.View.VISIBLE);
-                if (sepDayHour != null)
-                    sepDayHour.setVisibility(android.view.View.VISIBLE);
                 if (sepHourMin != null)
                     sepHourMin.setVisibility(android.view.View.VISIBLE);
+
+                // Hide Seconds
+                if (layoutSeconds != null)
+                    layoutSeconds.setVisibility(android.view.View.GONE);
+                if (sepMinSec != null)
+                    sepMinSec.setVisibility(android.view.View.GONE);
+
+                long totalHours = TimeUnit.MILLISECONDS.toHours(diff);
+                long minutes = TimeUnit.MILLISECONDS.toMinutes(diff) % 60;
+
+                hoursText.setText(String.format(Locale.getDefault(), "%02d", totalHours));
+                minutesText.setText(String.format(Locale.getDefault(), "%02d", minutes));
+
+            } else {
+                // Standard: D : H : M : S
+                if (layoutDays != null)
+                    layoutDays.setVisibility(android.view.View.VISIBLE);
+                if (sepDayHour != null)
+                    sepDayHour.setVisibility(android.view.View.VISIBLE);
+
+                if (layoutHours != null)
+                    layoutHours.setVisibility(android.view.View.VISIBLE);
+                if (sepHourMin != null)
+                    sepHourMin.setVisibility(android.view.View.VISIBLE);
+
+                if (layoutSeconds != null)
+                    layoutSeconds.setVisibility(android.view.View.VISIBLE);
+                if (sepMinSec != null)
+                    sepMinSec.setVisibility(android.view.View.VISIBLE);
 
                 long days = TimeUnit.MILLISECONDS.toDays(diff);
                 long hours = TimeUnit.MILLISECONDS.toHours(diff) % 24;
