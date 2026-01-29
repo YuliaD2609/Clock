@@ -107,6 +107,11 @@ public class DetailActivity extends AppCompatActivity {
         });
     }
 
+    // Views to toggle visibility
+    private android.view.View layoutDays, layoutHours;
+    private android.view.View sepDayHour, sepHourMin;
+    private boolean showTotalMinutes = false;
+
     private void requestPinWidget() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             android.appwidget.AppWidgetManager appWidgetManager = getSystemService(
@@ -149,6 +154,23 @@ public class DetailActivity extends AppCompatActivity {
         String dateString = sdf.format(new Date(event.getTimestamp()));
         String info = String.format("%s\n%s", event.getPlace(), dateString);
         infoText.setText(info);
+
+        // Find views for toggling
+        layoutDays = findViewById(R.id.layout_days);
+        layoutHours = findViewById(R.id.layout_hours);
+        sepDayHour = findViewById(R.id.sep_day_hour);
+        sepHourMin = findViewById(R.id.sep_hour_min);
+
+        android.view.View clockContainer = findViewById(R.id.clock_container);
+        if (clockContainer != null) {
+            clockContainer.setOnClickListener(new android.view.View.OnClickListener() {
+                @Override
+                public void onClick(android.view.View v) {
+                    showTotalMinutes = !showTotalMinutes;
+                    updateTimer();
+                }
+            });
+        }
     }
 
     private void startCountdown() {
@@ -173,15 +195,44 @@ public class DetailActivity extends AppCompatActivity {
             secondsText.setText("00");
             // Optional: Show "Event Started" or similar
         } else {
-            long days = TimeUnit.MILLISECONDS.toDays(diff);
-            long hours = TimeUnit.MILLISECONDS.toHours(diff) % 24;
-            long minutes = TimeUnit.MILLISECONDS.toMinutes(diff) % 60;
-            long seconds = TimeUnit.MILLISECONDS.toSeconds(diff) % 60;
+            if (showTotalMinutes) {
+                // Show Total Minutes mode
+                if (layoutDays != null)
+                    layoutDays.setVisibility(android.view.View.GONE);
+                if (layoutHours != null)
+                    layoutHours.setVisibility(android.view.View.GONE);
+                if (sepDayHour != null)
+                    sepDayHour.setVisibility(android.view.View.GONE);
+                if (sepHourMin != null)
+                    sepHourMin.setVisibility(android.view.View.GONE);
 
-            daysText.setText(String.format(Locale.getDefault(), "%02d", days));
-            hoursText.setText(String.format(Locale.getDefault(), "%02d", hours));
-            minutesText.setText(String.format(Locale.getDefault(), "%02d", minutes));
-            secondsText.setText(String.format(Locale.getDefault(), "%02d", seconds));
+                long totalMinutes = TimeUnit.MILLISECONDS.toMinutes(diff);
+                long seconds = TimeUnit.MILLISECONDS.toSeconds(diff) % 60;
+
+                minutesText.setText(String.format(Locale.getDefault(), "%02d", totalMinutes));
+                secondsText.setText(String.format(Locale.getDefault(), "%02d", seconds));
+
+            } else {
+                // Show Standard mode
+                if (layoutDays != null)
+                    layoutDays.setVisibility(android.view.View.VISIBLE);
+                if (layoutHours != null)
+                    layoutHours.setVisibility(android.view.View.VISIBLE);
+                if (sepDayHour != null)
+                    sepDayHour.setVisibility(android.view.View.VISIBLE);
+                if (sepHourMin != null)
+                    sepHourMin.setVisibility(android.view.View.VISIBLE);
+
+                long days = TimeUnit.MILLISECONDS.toDays(diff);
+                long hours = TimeUnit.MILLISECONDS.toHours(diff) % 24;
+                long minutes = TimeUnit.MILLISECONDS.toMinutes(diff) % 60;
+                long seconds = TimeUnit.MILLISECONDS.toSeconds(diff) % 60;
+
+                daysText.setText(String.format(Locale.getDefault(), "%02d", days));
+                hoursText.setText(String.format(Locale.getDefault(), "%02d", hours));
+                minutesText.setText(String.format(Locale.getDefault(), "%02d", minutes));
+                secondsText.setText(String.format(Locale.getDefault(), "%02d", seconds));
+            }
         }
     }
 

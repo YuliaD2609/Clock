@@ -85,6 +85,7 @@
         android:layout_marginTop="8dp"/>
 
     <LinearLayout
+        android:id="@+id/clock_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -95,6 +96,7 @@
         app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
+            android:id="@+id/layout_days"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -117,6 +119,7 @@
         </LinearLayout>
         
         <TextView
+            android:id="@+id/sep_day_hour"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text=":"
@@ -125,6 +128,7 @@
             android:layout_marginBottom="16dp"/>
 
         <LinearLayout
+            android:id="@+id/layout_hours"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -147,6 +151,7 @@
         </LinearLayout>
 
         <TextView
+            android:id="@+id/sep_hour_min"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text=":"
