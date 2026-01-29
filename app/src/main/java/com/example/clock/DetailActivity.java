@@ -158,15 +158,18 @@ public class DetailActivity extends AppCompatActivity {
         // Find views for toggling
         layoutDays = findViewById(R.id.layout_days);
         layoutHours = findViewById(R.id.layout_hours);
+        layoutSeconds = findViewById(R.id.layout_seconds);
+
         sepDayHour = findViewById(R.id.sep_day_hour);
         sepHourMin = findViewById(R.id.sep_hour_min);
+        sepMinSec = findViewById(R.id.sep_min_sec);
 
         android.view.View clockContainer = findViewById(R.id.clock_container);
         if (clockContainer != null) {
             clockContainer.setOnClickListener(new android.view.View.OnClickListener() {
                 @Override
                 public void onClick(android.view.View v) {
-                    showTotalMinutes = !showTotalMinutes;
+                    showTotalHoursMode = !showTotalHoursMode;
                     updateTimer();
                 }
             });
