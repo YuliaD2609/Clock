@@ -68,18 +68,9 @@ public class NotificationScheduler {
                 } else {
                     alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent);
                 }
-                android.widget.Toast.makeText(context, "Notification scheduled for 10 mins before event",
-                        android.widget.Toast.LENGTH_SHORT).show();
             } catch (SecurityException e) {
                 e.printStackTrace(); // Handle permission issues
-                android.widget.Toast.makeText(context, "Failed to schedule notification: Permission denied",
-                        android.widget.Toast.LENGTH_LONG).show();
             }
-        } else {
-            // Too late
-            android.widget.Toast
-                    .makeText(context, "Event is too close for 10-min warning", android.widget.Toast.LENGTH_SHORT)
-                    .show();
         }
     }
 
