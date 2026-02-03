@@ -142,9 +142,11 @@ public class AddEventActivity extends AppCompatActivity {
             eventToEdit.setPlace(place);
             eventToEdit.setTimestamp(selectedCalendar.getTimeInMillis());
             repository.addEvent(eventToEdit); // This will update because ID matches
+            com.example.clock.utils.NotificationScheduler.scheduleNotification(this, eventToEdit);
         } else {
             Event event = new Event(name, place, selectedCalendar.getTimeInMillis());
             repository.addEvent(event);
+            com.example.clock.utils.NotificationScheduler.scheduleNotification(this, event);
         }
 
         finish();
