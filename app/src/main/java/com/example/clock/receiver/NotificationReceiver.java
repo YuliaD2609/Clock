@@ -15,15 +15,23 @@ public class NotificationReceiver extends BroadcastReceiver {
     public static final String EVENT_ID = "event_id";
     public static final String EVENT_NAME = "event_name";
     public static final String EVENT_PLACE = "event_place";
+    public static final String EVENT_MESSAGE = "event_message";
 
     @Override
     public void onReceive(Context context, Intent intent) {
         String eventId = intent.getStringExtra(EVENT_ID);
         String eventName = intent.getStringExtra(EVENT_NAME);
-        String eventPlace = intent.getStringExtra(EVENT_PLACE);
+        // String eventPlace = intent.getStringExtra(EVENT_PLACE); // Unused for now if
+        // message is provided
+        String eventMessage = intent.getStringExtra(EVENT_MESSAGE);
 
         if (eventName == null)
             return;
+
+        if (eventMessage == null) {
+            // Fallback for old pending intents if any
+            eventMessage = "Upcoming event";
+        }
 
         NotificationManager notificationManager = (NotificationManager) context
                 .getSystemService(Context.NOTIFICATION_SERVICE);
@@ -36,7 +44,7 @@ public class NotificationReceiver extends BroadcastReceiver {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "event_channel")
                 .setSmallIcon(R.drawable.ic_launcher) // Make sure this resource exists, or use a default one
                 .setContentTitle("Upcoming Event: " + eventName)
-                .setContentText("In 10 minutes at " + eventPlace)
+                .setContentText(eventMessage)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true);

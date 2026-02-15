@@ -77,6 +77,26 @@ public class MainActivity extends AppCompatActivity {
                 showColorPicker();
             }
         });
+
+        checkAndMigrateNotifications();
+    }
+
+    private void checkAndMigrateNotifications() {
+        android.content.SharedPreferences prefs = getPreferences(MODE_PRIVATE);
+        boolean migrated = prefs.getBoolean("notifs_migrated_30_min_v2", false);
+
+        if (!migrated) {
+            List<Event> allEvents = repository.getEvents();
+            long now = System.currentTimeMillis();
+            for (Event event : allEvents) {
+                if (event.getTimestamp() > now) {
+                    com.example.clock.utils.NotificationScheduler.scheduleNotification(this, event);
+                }
+            }
+            prefs.edit().putBoolean("notifs_migrated_30_min_v2", true).apply();
+            android.widget.Toast
+                    .makeText(this, "Notifications updated for all events", android.widget.Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void checkPermissions() {

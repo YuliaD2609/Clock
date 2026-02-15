@@ -36,30 +36,37 @@ public class NotificationScheduler {
         // Check for exact alarm permission on Android 12+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (!alarmManager.canScheduleExactAlarms()) {
-                // Open settings to let user grant permission if strictly needed,
-                // but for this task we might just skip or fallback to inexact.
-                // For now, we proceed, trusting the manifest permission usually grants it for
-                // this type of app
-                // or catching the SecurityException if we want to be robust.
+                // Permission not granted, cannot schedule exact alarms.
+                // In a real app, we should handle this gracefully or ask for permission.
+                return;
             }
         }
 
+        // Schedule 10-minute notification
+        scheduleAlarm(context, alarmManager, event, 10, "In 10 minutes at " + event.getPlace());
+
+        // Schedule 30-minute notification
+        scheduleAlarm(context, alarmManager, event, 30, "In 30 minutes at " + event.getPlace());
+    }
+
+    private static void scheduleAlarm(Context context, AlarmManager alarmManager, Event event, int minutesBefore,
+            String message) {
         Intent intent = new Intent(context, NotificationReceiver.class);
         intent.putExtra(NotificationReceiver.EVENT_ID, event.getId());
         intent.putExtra(NotificationReceiver.EVENT_NAME, event.getName());
         intent.putExtra(NotificationReceiver.EVENT_PLACE, event.getPlace());
+        intent.putExtra(NotificationReceiver.EVENT_MESSAGE, message);
 
-        // Use data Uri to make the intent unique per event so PendingIntent doesn't get
-        // overwritten
-        intent.setData(Uri.parse("event://" + event.getId()));
+        // Unique data URI for this specific notification time
+        intent.setData(Uri.parse("event://" + event.getId() + "/" + minutesBefore));
 
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
                 context,
-                0,
+                minutesBefore, // Use minutesBefore as requestCode to distinguish locally if needed
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
-        long triggerTime = event.getTimestamp() - 10 * 60 * 1000; // 10 minutes before
+        long triggerTime = event.getTimestamp() - (long) minutesBefore * 60 * 1000;
 
         if (triggerTime > System.currentTimeMillis()) {
             try {
@@ -69,17 +76,22 @@ public class NotificationScheduler {
                     alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent);
                 }
             } catch (SecurityException e) {
-                e.printStackTrace(); // Handle permission issues
+                e.printStackTrace();
             }
         }
     }
 
     public static void cancelNotification(Context context, Event event) {
+        cancelAlarm(context, event, 10);
+        cancelAlarm(context, event, 30);
+    }
+
+    private static void cancelAlarm(Context context, Event event, int minutesBefore) {
         Intent intent = new Intent(context, NotificationReceiver.class);
-        intent.setData(Uri.parse("event://" + event.getId()));
+        intent.setData(Uri.parse("event://" + event.getId() + "/" + minutesBefore));
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
                 context,
-                0,
+                minutesBefore,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_NO_CREATE);
 
