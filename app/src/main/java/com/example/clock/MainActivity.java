@@ -84,10 +84,12 @@ public class MainActivity extends AppCompatActivity {
     private void checkAndMigrateNotifications() {
         android.content.SharedPreferences prefs = getPreferences(MODE_PRIVATE);
         boolean migrated = prefs.getBoolean("notifs_migrated_30_min_v2", false);
+        boolean calendarSynced = prefs.getBoolean("calendar_synced_v1", false);
+
+        List<Event> allEvents = repository.getEvents();
+        long now = System.currentTimeMillis();
 
         if (!migrated) {
-            List<Event> allEvents = repository.getEvents();
-            long now = System.currentTimeMillis();
             for (Event event : allEvents) {
                 if (event.getTimestamp() > now) {
                     com.example.clock.utils.NotificationScheduler.scheduleNotification(this, event);
@@ -97,13 +99,45 @@ public class MainActivity extends AppCompatActivity {
             android.widget.Toast
                     .makeText(this, "Notifications updated for all events", android.widget.Toast.LENGTH_SHORT).show();
         }
+
+        // Check for Calendar permissions before attempting sync
+        if (!calendarSynced && androidx.core.content.ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.WRITE_CALENDAR) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            for (Event event : allEvents) {
+                if (event.getTimestamp() > now) {
+                    com.example.clock.utils.CalendarUtils.addEventToCalendar(this, event);
+                }
+            }
+            prefs.edit().putBoolean("calendar_synced_v1", true).apply();
+            android.widget.Toast.makeText(this, "Events synced to Calendar", android.widget.Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void checkPermissions() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            String[] permissions = {
+                    android.Manifest.permission.POST_NOTIFICATIONS,
+                    android.Manifest.permission.READ_CALENDAR,
+                    android.Manifest.permission.WRITE_CALENDAR
+            };
+
+            java.util.List<String> permissionsToRequest = new java.util.ArrayList<>();
+            for (String permission : permissions) {
+                if (androidx.core.content.ContextCompat.checkSelfPermission(this,
+                        permission) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                    permissionsToRequest.add(permission);
+                }
+            }
+
+            if (!permissionsToRequest.isEmpty()) {
+                requestPermissionLauncher.launch(permissionsToRequest.toArray(new String[0]));
+            }
+        } else {
+            // For older Android versions, just check Calendar permissions
             if (androidx.core.content.ContextCompat.checkSelfPermission(this,
-                    android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
-                requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS);
+                    android.Manifest.permission.WRITE_CALENDAR) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                requestPermissionLauncher.launch(new String[] { android.Manifest.permission.READ_CALENDAR,
+                        android.Manifest.permission.WRITE_CALENDAR });
             }
         }
 
@@ -111,27 +145,20 @@ public class MainActivity extends AppCompatActivity {
             android.app.AlarmManager alarmManager = (android.app.AlarmManager) getSystemService(
                     android.content.Context.ALARM_SERVICE);
             if (!alarmManager.canScheduleExactAlarms()) {
-                // Open settings to let user grant permission if strictly needed,
-                // but for this task we might just skip or fallback to inexact.
-                // For now, we proceed, trusting the manifest permission usually grants it for
-                // this type of app
-                // or catching the SecurityException if we want to be robust.
-                // Intent intent = new
-                // Intent(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
-                // startActivity(intent);
+                // ... (existing code)
             }
         }
     }
 
-    private final androidx.activity.result.ActivityResultLauncher<String> requestPermissionLauncher = registerForActivityResult(
-            new androidx.activity.result.contract.ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
-                    // Permission is granted.
-                } else {
-                    // Explain to the user that the feature is unavailable because the
-                    // feature requires a permission that the user has denied.
-                    android.widget.Toast.makeText(this, "Notifications disabled", android.widget.Toast.LENGTH_SHORT)
-                            .show();
+    private final androidx.activity.result.ActivityResultLauncher<String[]> requestPermissionLauncher = registerForActivityResult(
+            new androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions(), result -> {
+                Boolean postNotifsGranted = result.getOrDefault(android.Manifest.permission.POST_NOTIFICATIONS, false);
+                Boolean writeCalendarGranted = result.getOrDefault(android.Manifest.permission.WRITE_CALENDAR, false);
+
+                if (Boolean.TRUE.equals(writeCalendarGranted)) {
+                    // Permission granted, trigger sync if needed, or just let next launch handle it
+                    // Ideally, we reformulate checkAndMigrate to run after permission grant
+                    checkAndMigrateNotifications();
                 }
             });
 
