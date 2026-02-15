@@ -78,6 +78,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        android.widget.ImageView syncBtn = findViewById(R.id.btn_sync);
+        syncBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                syncCalendar();
+            }
+        });
+
         checkAndMigrateNotifications();
     }
 
@@ -207,6 +215,35 @@ public class MainActivity extends AppCompatActivity {
         android.widget.ImageView historyBtn = findViewById(R.id.btn_history);
         if (historyBtn != null)
             historyBtn.setColorFilter(color, android.graphics.PorterDuff.Mode.SRC_IN);
+
+        android.widget.ImageView syncBtn = findViewById(R.id.btn_sync);
+        if (syncBtn != null)
+            syncBtn.setColorFilter(color, android.graphics.PorterDuff.Mode.SRC_IN);
+    }
+
+    private void syncCalendar() {
+        if (androidx.core.content.ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.WRITE_CALENDAR) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            requestPermissionLauncher.launch(new String[] { android.Manifest.permission.READ_CALENDAR,
+                    android.Manifest.permission.WRITE_CALENDAR });
+            return;
+        }
+
+        android.widget.Toast.makeText(this, "Syncing events...", android.widget.Toast.LENGTH_SHORT).show();
+        List<Event> allEvents = repository.getEvents();
+        long now = System.currentTimeMillis();
+        int count = 0;
+
+        for (Event event : allEvents) {
+            if (event.getTimestamp() > now) {
+                boolean success = com.example.clock.utils.CalendarUtils.addEventToCalendar(this, event);
+                if (success)
+                    count++;
+            }
+        }
+
+        android.widget.Toast
+                .makeText(this, "Synced " + count + " events to Calendar", android.widget.Toast.LENGTH_SHORT).show();
     }
 
     @Override

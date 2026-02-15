@@ -137,18 +137,25 @@ public class AddEventActivity extends AppCompatActivity {
 
         EventRepository repository = new EventRepository(this);
 
+        boolean calendarSuccess = false;
         if (eventToEdit != null) {
             eventToEdit.setName(name);
             eventToEdit.setPlace(place);
             eventToEdit.setTimestamp(selectedCalendar.getTimeInMillis());
             repository.addEvent(eventToEdit); // This will update because ID matches
             com.example.clock.utils.NotificationScheduler.scheduleNotification(this, eventToEdit);
-            com.example.clock.utils.CalendarUtils.addEventToCalendar(this, eventToEdit);
+            calendarSuccess = com.example.clock.utils.CalendarUtils.addEventToCalendar(this, eventToEdit);
         } else {
             Event event = new Event(name, place, selectedCalendar.getTimeInMillis());
             repository.addEvent(event);
             com.example.clock.utils.NotificationScheduler.scheduleNotification(this, event);
-            com.example.clock.utils.CalendarUtils.addEventToCalendar(this, event);
+            calendarSuccess = com.example.clock.utils.CalendarUtils.addEventToCalendar(this, event);
+        }
+
+        if (calendarSuccess) {
+            Toast.makeText(this, "Event saved to Calendar", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Saved to app, but failed to sync to Calendar", Toast.LENGTH_LONG).show();
         }
 
         finish();

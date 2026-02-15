@@ -17,10 +17,10 @@ import java.util.TimeZone;
 
 public class CalendarUtils {
 
-    public static void addEventToCalendar(Context context, Event event) {
+    public static boolean addEventToCalendar(Context context, Event event) {
         if (ContextCompat.checkSelfPermission(context,
                 Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
-            return;
+            return false;
         }
 
         long calID = getPrimaryCalendarId(context);
@@ -29,12 +29,12 @@ public class CalendarUtils {
             // For now, let's try to find ANY writable calendar
             calID = getAnyWritableCalendarId(context);
             if (calID == -1)
-                return;
+                return false;
         }
 
         // Prevent duplicates: Check if event already exists
         if (eventExists(context, calID, event)) {
-            return;
+            return true; // Already exists, consider it a success
         }
 
         ContentResolver cr = context.getContentResolver();
@@ -49,9 +49,10 @@ public class CalendarUtils {
 
         try {
             Uri uri = cr.insert(CalendarContract.Events.CONTENT_URI, values);
-            // long eventID = Long.parseLong(uri.getLastPathSegment());
+            return uri != null;
         } catch (SecurityException e) {
             e.printStackTrace();
+            return false;
         }
     }
 
