@@ -100,7 +100,7 @@ public class CalendarUtils {
                 CalendarContract.Calendars.CONTENT_URI,
                 projection,
                 CalendarContract.Calendars.IS_PRIMARY + " = 1 AND " +
-                        CalendarContract.Calendars.ACCESS_LEVEL + " >= "
+                        CalendarContract.Calendars.CALENDAR_ACCESS_LEVEL + " >= "
                         + CalendarContract.Calendars.CAL_ACCESS_CONTRIBUTOR,
                 null,
                 null)) {
@@ -125,7 +125,8 @@ public class CalendarUtils {
         try (Cursor cursor = context.getContentResolver().query(
                 CalendarContract.Calendars.CONTENT_URI,
                 projection,
-                CalendarContract.Calendars.ACCESS_LEVEL + " >= " + CalendarContract.Calendars.CAL_ACCESS_CONTRIBUTOR,
+                CalendarContract.Calendars.CALENDAR_ACCESS_LEVEL + " >= "
+                        + CalendarContract.Calendars.CAL_ACCESS_CONTRIBUTOR,
                 null,
                 null)) {
 
