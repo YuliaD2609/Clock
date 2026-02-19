@@ -195,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
                 if (Boolean.TRUE.equals(writeCalendarGranted)) {
                     // Permission granted, trigger sync if needed, or just let next launch handle it
                     // Ideally, we reformulate checkAndMigrate to run after permission grant
-                    checkAndMigrateNotifications();
+                    performAppMaintenance();
                 }
             });
 
