@@ -17,24 +17,23 @@ import java.util.TimeZone;
 
 public class CalendarUtils {
 
-    public static boolean addEventToCalendar(Context context, Event event) {
+    public static long addEventToCalendar(Context context, Event event) {
         if (ContextCompat.checkSelfPermission(context,
                 Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
-            return false;
+            return -1;
         }
 
         long calID = getPrimaryCalendarId(context);
         if (calID == -1) {
-            // No primary calendar found, maybe fallback to first available or error?
-            // For now, let's try to find ANY writable calendar
             calID = getAnyWritableCalendarId(context);
             if (calID == -1)
-                return false;
+                return -1;
         }
 
         // Prevent duplicates: Check if event already exists
-        if (eventExists(context, calID, event)) {
-            return true; // Already exists, consider it a success
+        long existingId = getCalendarEventId(context, event);
+        if (existingId != -1) {
+            return existingId; // Already exists, return its ID
         }
 
         ContentResolver cr = context.getContentResolver();
@@ -49,18 +48,54 @@ public class CalendarUtils {
 
         try {
             Uri uri = cr.insert(CalendarContract.Events.CONTENT_URI, values);
-            return uri != null;
-        } catch (SecurityException e) {
+            if (uri != null) {
+                return Long.parseLong(uri.getLastPathSegment());
+            }
+            return -1;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
+    public static boolean updateEventInCalendar(Context context, long eventId, Event event) {
+        if (ContextCompat.checkSelfPermission(context,
+                Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
+            return false;
+        }
+
+        ContentResolver cr = context.getContentResolver();
+        ContentValues values = new ContentValues();
+        values.put(CalendarContract.Events.DTSTART, event.getTimestamp());
+        values.put(CalendarContract.Events.DTEND, event.getTimestamp() + 60 * 60 * 1000);
+        values.put(CalendarContract.Events.TITLE, event.getName());
+        values.put(CalendarContract.Events.EVENT_LOCATION, event.getPlace());
+
+        Uri updateUri = android.content.ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, eventId);
+
+        try {
+            int rows = cr.update(updateUri, values, null, null);
+            return rows > 0;
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
     }
 
-    private static boolean eventExists(Context context, long calID, Event event) {
+    public static long getCalendarEventId(Context context, Event event) {
         if (ContextCompat.checkSelfPermission(context,
                 Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
-            return false;
+            return -1;
         }
+
+        // We need a calendar ID to check against, or we check all?
+        // Best to check all or the one we would write to.
+        // Let's check the one we would write to first.
+        long calID = getPrimaryCalendarId(context);
+        if (calID == -1)
+            calID = getAnyWritableCalendarId(context);
+        if (calID == -1)
+            return -1;
 
         String[] projection = new String[] { CalendarContract.Events._ID };
         String selection = CalendarContract.Events.CALENDAR_ID + " = ? AND " +
@@ -78,11 +113,13 @@ public class CalendarUtils {
                 selection,
                 selectionArgs,
                 null)) {
-            return cursor != null && cursor.moveToFirst();
+            if (cursor != null && cursor.moveToFirst()) {
+                return cursor.getLong(0);
+            }
         } catch (Exception e) {
             e.printStackTrace();
-            return false;
         }
+        return -1;
     }
 
     private static long getPrimaryCalendarId(Context context) {

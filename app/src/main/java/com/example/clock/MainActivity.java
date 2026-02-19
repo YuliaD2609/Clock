@@ -78,25 +78,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        android.widget.ImageView syncBtn = findViewById(R.id.btn_sync);
-        syncBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                syncCalendar();
-            }
-        });
-
-        checkAndMigrateNotifications();
+        performAppMaintenance();
     }
 
-    private void checkAndMigrateNotifications() {
+    private void performAppMaintenance() {
         android.content.SharedPreferences prefs = getPreferences(MODE_PRIVATE);
         boolean migrated = prefs.getBoolean("notifs_migrated_30_min_v2", false);
-        boolean calendarSynced = prefs.getBoolean("calendar_synced_v1", false);
 
         List<Event> allEvents = repository.getEvents();
         long now = System.currentTimeMillis();
 
+        // 1. Notification Migration (keep existing logic)
         if (!migrated) {
             for (Event event : allEvents) {
                 if (event.getTimestamp() > now) {
@@ -108,17 +100,54 @@ public class MainActivity extends AppCompatActivity {
                     .makeText(this, "Notifications updated for all events", android.widget.Toast.LENGTH_SHORT).show();
         }
 
-        // Check for Calendar permissions before attempting sync
-        if (!calendarSynced && androidx.core.content.ContextCompat.checkSelfPermission(this,
-                android.Manifest.permission.WRITE_CALENDAR) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+        // 2. Cleanup old events (> 7 days old)
+        // 7 days in ms = 7 * 24 * 60 * 60 * 1000 = 604800000
+        long sevenDaysAgo = now - 604800000L;
+        // Optimization: check if we need to reload events after cleanup
+        int initialSize = allEvents.size();
+        repository.deleteEventsOlderThan(sevenDaysAgo);
+
+        // Reload if events might have been deleted to keep memory consistent
+        allEvents = repository.getEvents();
+        if (allEvents.size() != initialSize) {
+            adapter.setEvents(getFutureEvents(allEvents));
+        }
+
+        // 3. Link existing events to Calendar if permission granted
+        if (androidx.core.content.ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.READ_CALENDAR) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+
+            boolean eventsUpdated = false;
             for (Event event : allEvents) {
-                if (event.getTimestamp() > now) {
-                    com.example.clock.utils.CalendarUtils.addEventToCalendar(this, event);
+                // If event is in future (or recent) and has no ID, try to find it
+                if (event.getCalendarEventId() == null && event.getTimestamp() > sevenDaysAgo) {
+                    long calId = com.example.clock.utils.CalendarUtils.getCalendarEventId(this, event);
+                    if (calId != -1) {
+                        event.setCalendarEventId(calId);
+                        repository.addEvent(event); // Update repository
+                        eventsUpdated = true;
+                    }
                 }
             }
-            prefs.edit().putBoolean("calendar_synced_v1", true).apply();
-            android.widget.Toast.makeText(this, "Events synced to Calendar", android.widget.Toast.LENGTH_SHORT).show();
+            if (eventsUpdated) {
+                // Refresh list if needed, though addEvent mainly updates backing store
+                // Adapter already holds reference to objects? No, adapter has its own list.
+                // But we reloaded `allEvents` from repo.
+                // Better to just refresh adapter to be sure.
+                adapter.setEvents(getFutureEvents(repository.getEvents()));
+            }
         }
+    }
+
+    private List<Event> getFutureEvents(List<Event> source) {
+        List<Event> future = new java.util.ArrayList<>();
+        long now = System.currentTimeMillis();
+        for (Event e : source) {
+            if (e.getTimestamp() > now) {
+                future.add(e);
+            }
+        }
+        return future;
     }
 
     private void checkPermissions() {
@@ -215,41 +244,13 @@ public class MainActivity extends AppCompatActivity {
         android.widget.ImageView historyBtn = findViewById(R.id.btn_history);
         if (historyBtn != null)
             historyBtn.setColorFilter(color, android.graphics.PorterDuff.Mode.SRC_IN);
-
-        android.widget.ImageView syncBtn = findViewById(R.id.btn_sync);
-        if (syncBtn != null)
-            syncBtn.setColorFilter(color, android.graphics.PorterDuff.Mode.SRC_IN);
-    }
-
-    private void syncCalendar() {
-        if (androidx.core.content.ContextCompat.checkSelfPermission(this,
-                android.Manifest.permission.WRITE_CALENDAR) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
-            requestPermissionLauncher.launch(new String[] { android.Manifest.permission.READ_CALENDAR,
-                    android.Manifest.permission.WRITE_CALENDAR });
-            return;
-        }
-
-        android.widget.Toast.makeText(this, "Syncing events...", android.widget.Toast.LENGTH_SHORT).show();
-        List<Event> allEvents = repository.getEvents();
-        long now = System.currentTimeMillis();
-        int count = 0;
-
-        for (Event event : allEvents) {
-            if (event.getTimestamp() > now) {
-                boolean success = com.example.clock.utils.CalendarUtils.addEventToCalendar(this, event);
-                if (success)
-                    count++;
-            }
-        }
-
-        android.widget.Toast
-                .makeText(this, "Synced " + count + " events to Calendar", android.widget.Toast.LENGTH_SHORT).show();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         applyTheme();
+        performAppMaintenance(); // Check for cleanup/linking on return
         loadEvents();
     }
 

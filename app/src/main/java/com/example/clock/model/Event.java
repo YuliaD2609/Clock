@@ -8,6 +8,8 @@ public class Event implements Serializable, Comparable<Event> {
     private String name;
     private String place;
     private long timestamp; // Milliseconds since epoch
+    private Long calendarEventId;
+    private boolean isTemporary;
 
     public Event(String name, String place, long timestamp) {
         this.id = UUID.randomUUID().toString();
@@ -46,6 +48,22 @@ public class Event implements Serializable, Comparable<Event> {
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public Long getCalendarEventId() {
+        return calendarEventId;
+    }
+
+    public void setCalendarEventId(Long calendarEventId) {
+        this.calendarEventId = calendarEventId;
+    }
+
+    public boolean isTemporary() {
+        return isTemporary;
+    }
+
+    public void setTemporary(boolean temporary) {
+        isTemporary = temporary;
     }
 
     @Override

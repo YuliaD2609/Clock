@@ -66,6 +66,22 @@ public class EventRepository {
         saveEvents(events);
     }
 
+    public void deleteEventsOlderThan(long timestamp) {
+        List<Event> events = getEvents();
+        List<Event> toKeep = new ArrayList<>();
+        boolean changed = false;
+        for (Event event : events) {
+            if (event.getTimestamp() >= timestamp) {
+                toKeep.add(event);
+            } else {
+                changed = true;
+            }
+        }
+        if (changed) {
+            saveEvents(toKeep);
+        }
+    }
+
     private void saveEvents(List<Event> events) {
         Collections.sort(events);
         String json = gson.toJson(events);

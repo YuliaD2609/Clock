@@ -33,6 +33,8 @@ public class AddEventActivity extends AppCompatActivity {
 
     private Event eventToEdit;
 
+    private android.widget.CheckBox temporaryCheckbox;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +42,7 @@ public class AddEventActivity extends AppCompatActivity {
 
         nameInput = findViewById(R.id.edit_event_name);
         placeInput = findViewById(R.id.edit_event_place);
+        temporaryCheckbox = findViewById(R.id.checkbox_temporary);
         dateButton = findViewById(R.id.btn_pick_date);
         timeButton = findViewById(R.id.btn_pick_time);
         saveButton = findViewById(R.id.btn_save_event);
@@ -52,6 +55,7 @@ public class AddEventActivity extends AppCompatActivity {
             eventToEdit = (Event) getIntent().getSerializableExtra("event");
             nameInput.setText(eventToEdit.getName());
             placeInput.setText(eventToEdit.getPlace());
+            temporaryCheckbox.setChecked(eventToEdit.isTemporary());
             selectedCalendar.setTimeInMillis(eventToEdit.getTimestamp());
             saveButton.setText("Update");
         }
@@ -88,6 +92,7 @@ public class AddEventActivity extends AppCompatActivity {
         saveButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(color));
         dateButton.setTextColor(color);
         timeButton.setTextColor(color);
+        temporaryCheckbox.setButtonTintList(android.content.res.ColorStateList.valueOf(color));
         // Also could tint the input underlines or cursor if possible, but buttons are
         // main thing.
     }
@@ -129,6 +134,7 @@ public class AddEventActivity extends AppCompatActivity {
     private void saveEvent() {
         String name = nameInput.getText().toString().trim();
         String place = placeInput.getText().toString().trim();
+        boolean isTemporary = temporaryCheckbox.isChecked();
 
         if (name.isEmpty()) {
             nameInput.setError("Name required");
@@ -138,24 +144,72 @@ public class AddEventActivity extends AppCompatActivity {
         EventRepository repository = new EventRepository(this);
 
         boolean calendarSuccess = false;
+        boolean syncAttempted = false;
+
+        // Logic:
+        // Use eventToEdit if it exists, else new Event.
+        // If event has calendarEventId, try UPDATE.
+        // If update fails or ID is null, try INSERT.
+        // If INSERT succeeds, update the ID in the event.
+
+        Event eventWorkingCopy;
         if (eventToEdit != null) {
             eventToEdit.setName(name);
             eventToEdit.setPlace(place);
             eventToEdit.setTimestamp(selectedCalendar.getTimeInMillis());
-            repository.addEvent(eventToEdit); // This will update because ID matches
-            com.example.clock.utils.NotificationScheduler.scheduleNotification(this, eventToEdit);
-            calendarSuccess = com.example.clock.utils.CalendarUtils.addEventToCalendar(this, eventToEdit);
+            eventToEdit.setTemporary(isTemporary);
+            eventWorkingCopy = eventToEdit;
         } else {
-            Event event = new Event(name, place, selectedCalendar.getTimeInMillis());
-            repository.addEvent(event);
-            com.example.clock.utils.NotificationScheduler.scheduleNotification(this, event);
-            calendarSuccess = com.example.clock.utils.CalendarUtils.addEventToCalendar(this, event);
+            eventWorkingCopy = new Event(name, place, selectedCalendar.getTimeInMillis());
+            eventWorkingCopy.setTemporary(isTemporary);
         }
 
-        if (calendarSuccess) {
-            Toast.makeText(this, "Event saved to Calendar", Toast.LENGTH_SHORT).show();
+        // Calendar Sync Logic
+        if (!isTemporary) {
+            syncAttempted = true;
+            if (eventWorkingCopy.getCalendarEventId() != null) {
+                boolean updated = com.example.clock.utils.CalendarUtils.updateEventInCalendar(this,
+                        eventWorkingCopy.getCalendarEventId(), eventWorkingCopy);
+                if (updated) {
+                    calendarSuccess = true;
+                } else {
+                    // Maybe it was deleted? Try to re-add?
+                    // Let's try to add as new if update failed
+                    long newId = com.example.clock.utils.CalendarUtils.addEventToCalendar(this, eventWorkingCopy);
+                    if (newId != -1) {
+                        eventWorkingCopy.setCalendarEventId(newId);
+                        calendarSuccess = true;
+                    }
+                }
+            } else {
+                long newId = com.example.clock.utils.CalendarUtils.addEventToCalendar(this, eventWorkingCopy);
+                if (newId != -1) {
+                    eventWorkingCopy.setCalendarEventId(newId);
+                    calendarSuccess = true;
+                }
+            }
         } else {
-            Toast.makeText(this, "Saved to app, but failed to sync to Calendar", Toast.LENGTH_LONG).show();
+            // It is temporary, so no sync.
+            // Requirement check: "not from the calendar".
+            // If it WAS in the calendar (calendarEventId != null), we might want to leave
+            // it or remove it?
+            // The request says "if is checked the event is not added to the calendar".
+            // It implies for NEW events or updates where we don't want it synced.
+            // For now, we just skip the sync call.
+        }
+
+        // Save to repo (including new/updated ID and temporary flag)
+        repository.addEvent(eventWorkingCopy);
+        com.example.clock.utils.NotificationScheduler.scheduleNotification(this, eventWorkingCopy);
+
+        if (syncAttempted) {
+            if (calendarSuccess) {
+                Toast.makeText(this, "Event synced to Calendar", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Saved to app, but failed to sync to Calendar", Toast.LENGTH_LONG).show();
+            }
+        } else {
+            Toast.makeText(this, "Temporary event saved (App only)", Toast.LENGTH_SHORT).show();
         }
 
         finish();
