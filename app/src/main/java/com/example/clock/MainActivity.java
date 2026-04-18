@@ -313,8 +313,8 @@ public class MainActivity extends AppCompatActivity {
 
         for (Event event : allEvents) {
             if (event.getTimestamp() > now) {
-                boolean success = com.example.clock.utils.CalendarUtils.addEventToCalendar(this, event);
-                if (success)
+                long eventId = com.example.clock.utils.CalendarUtils.addEventToCalendar(this, event);
+                if (eventId != -1)
                     count++;
             }
         }
