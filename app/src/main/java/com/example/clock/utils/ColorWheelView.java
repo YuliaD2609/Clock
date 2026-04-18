@@ -48,8 +48,8 @@ public class ColorWheelView extends View {
         radius = Math.min(centerX, centerY) * 0.9f;
 
         int[] colors = new int[] {
-                Color.RED, Color.MAGENTA, Color.BLUE, Color.CYAN,
-                Color.GREEN, Color.YELLOW, Color.RED
+                Color.RED, Color.YELLOW, Color.GREEN, Color.CYAN,
+                Color.BLUE, Color.MAGENTA, Color.RED
         };
         SweepGradient sweepGradient = new SweepGradient(centerX, centerY, colors, null);
         paint.setShader(sweepGradient);
