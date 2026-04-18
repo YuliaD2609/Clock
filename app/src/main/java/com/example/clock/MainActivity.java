@@ -248,11 +248,13 @@ public class MainActivity extends AppCompatActivity {
         android.view.View dialogView = getLayoutInflater().inflate(R.layout.dialog_color_picker, null);
         com.example.clock.utils.ColorWheelView colorWheel = dialogView.findViewById(R.id.color_wheel);
 
+        final int[] tempSelectedColor = new int[] { com.example.clock.utils.ThemeHelper.getAccentColor(this) };
+
         final androidx.appcompat.app.AlertDialog dialog = new com.google.android.material.dialog.MaterialAlertDialogBuilder(
                 this)
                 .setTitle("Choose Accent Color")
                 .setView(dialogView)
-                .setNeutralButton("Reset Default", new android.content.DialogInterface.OnClickListener() {
+                .setNeutralButton("Default", new android.content.DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(android.content.DialogInterface dialog, int which) {
                         com.example.clock.utils.ThemeHelper.resetToDefault(MainActivity.this);
@@ -261,16 +263,21 @@ public class MainActivity extends AppCompatActivity {
                             adapter.notifyDataSetChanged();
                     }
                 })
-                .setNegativeButton("Cancel", null)
+                .setPositiveButton("Apply", new android.content.DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(android.content.DialogInterface dialog, int which) {
+                        com.example.clock.utils.ThemeHelper.saveAccentColor(MainActivity.this, tempSelectedColor[0]);
+                        applyTheme();
+                        if (adapter != null)
+                            adapter.notifyDataSetChanged();
+                    }
+                })
                 .create();
 
         colorWheel.setOnColorSelectedListener(new com.example.clock.utils.ColorWheelView.OnColorSelectedListener() {
             @Override
             public void onColorSelected(int color) {
-                com.example.clock.utils.ThemeHelper.saveAccentColor(MainActivity.this, color);
-                applyTheme();
-                if (adapter != null)
-                    adapter.notifyDataSetChanged();
+                tempSelectedColor[0] = color;
             }
         });
 
