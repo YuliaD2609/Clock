@@ -52,7 +52,16 @@
             android:layout_height="24dp"
             android:src="@drawable/ic_history"
             app:tint="@color/text_secondary"
-            android:contentDescription="History"/>
+            android:contentDescription="History"
+            android:layout_marginEnd="16dp"/>
+
+        <ImageView
+            android:id="@+id/btn_sync"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_sync"
+            app:tint="@color/text_secondary"
+            android:contentDescription="Sync"/>
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
