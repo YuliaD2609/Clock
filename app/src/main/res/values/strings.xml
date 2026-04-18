@@ -7,4 +7,7 @@
     <string name="save_button">Save</string>
     <string name="pick_date">Pick Date</string>
     <string name="pick_time">Pick Time</string>
+    <string name="donation_title">Ti sta piacendo l\'app?</string>
+    <string name="donation_button">Sostieni lo sviluppatore!</string>
+    <string name="donation_subtext">Questa app vorrebbe essere negli app store, la tua donazione contribuirà a finanziarne la pubblicazione!</string>
 </resources>
