@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center_horizontal"
+    android:background="@drawable/rounded_dialog_bg">
+
+    <LinearLayout
+        android:id="@+id/layout_theme_toggle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone"> <!-- Visibile solo per Colori -->
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Modalità Scura"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp"/>
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/switch_theme_mode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/btn_theme_system"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Ripristina predefinito sistema"
+        android:textColor="@color/accent_color"
+        android:textSize="12sp"
+        android:padding="8dp"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone"/>
+
+    <ImageView
+        android:id="@+id/premium_icon"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:src="@android:drawable/btn_star_big_on"
+        app:tint="@color/accent_color"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:id="@+id/premium_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Funzionalità Premium"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"
+        android:textAlignment="center"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/premium_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Questa funzione richiede lo sblocco Premium.\nRiceverai il codice via email subito dopo il pagamento."
+        android:textColor="@color/text_secondary"
+        android:textAlignment="center"
+        android:layout_marginBottom="24dp"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_paypal_pay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Acquista con PayPal"
+        app:cornerRadius="8dp"
+        android:layout_marginBottom="32dp"
+        app:backgroundTint="@color/accent_color"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/dialog_separator"
+        android:layout_marginBottom="24dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hai già un codice di sblocco?"
+        android:textColor="@color/text_primary"
+        android:textSize="14sp"
+        android:layout_marginBottom="8dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:hint="Inserisci codice"
+            app:hintTextColor="@color/text_secondary"
+            android:layout_marginEnd="8dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_unlock_code"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_primary"
+                android:inputType="textCapCharacters"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_verify_code"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sblocca"
+            app:cornerRadius="8dp"
+            app:backgroundTint="@color/accent_color"/>
+    </LinearLayout>
+
+</LinearLayout>

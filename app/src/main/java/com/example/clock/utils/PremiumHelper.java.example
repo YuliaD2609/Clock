@@ -1,0 +1,19 @@
+package com.example.clock.utils;
+
+import android.content.Context;
+
+public class PremiumHelper {
+    // ESEMPIO DI PREMIUM HELPER.
+    // Rinomina questo file in 'PremiumHelper.java' per far compilare il progetto.
+    // Questo file contiene la logica di sblocco ed è rimosso dal repo per sicurezza.
+    
+    public static final String MASTER_ADMIN_CODE = "INSERISCI_QUI";
+
+    public static boolean isEventsUnlocked(Context context) { return false; }
+    public static boolean isColorsUnlocked(Context context) { return false; }
+    public static boolean isAdminUnlocked(Context context) { return false; }
+    
+    public static boolean verifyAndUnlock(Context context, String code) { return false; }
+    
+    public static String generateDailyCode(String date, String type) { return ""; }
+}

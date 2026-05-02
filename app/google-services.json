@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "286349595389",
+    "project_id": "clock-aa72c",
+    "storage_bucket": "clock-aa72c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:286349595389:android:cdb7d3e8365f53ad206494",
+        "android_client_info": {
+          "package_name": "com.example.clock"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAlCKkE7q0HvhBiYilXi_tOuzU_nAIXQMc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    
+    <!-- Colori per modalità CHIARA (Default) -->
+    <color name="dark_background">#F5F5F5</color>
+    <color name="surface_color">#FFFFFF</color>
+    <color name="accent_color">#2196F3</color>
+    
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="dialog_separator">#1F000000</color>
+    
+    <color name="donate_accent_light">#D97706</color>
+    <color name="donate_accent_dark">#FBBF24</color>
+</resources>

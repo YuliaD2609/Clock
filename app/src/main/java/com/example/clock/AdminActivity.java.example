@@ -1,0 +1,16 @@
+package com.example.clock;
+
+import android.os.Bundle;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class AdminActivity extends AppCompatActivity {
+    // ESEMPIO DI FILE ADMIN. 
+    // Rinomina questo file in 'AdminActivity.java' per far compilare il progetto.
+    // Questo file è rimosso dal repository principale per sicurezza.
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // setContentView(R.layout.activity_admin);
+        finish(); // Chiudi subito se non configurato
+    }
+}
